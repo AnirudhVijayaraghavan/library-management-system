@@ -18,18 +18,9 @@
             </button>
         </div>
 
-        <!-- Book List -->
+        <!-- Card Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="book in books.data" :key="book.id" class="p-4 bg-white rounded shadow">
-                <h3 class="font-semibold">{{ book.title }}</h3>
-                <p class="text-sm text-gray-600">{{ book.author }} • {{ book.category }}</p>
-                <p class="mt-2">
-                    <span class="px-2 py-1 text-xs rounded"
-                        :class="book.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                        {{ book.isAvailable ? 'Available' : 'Checked out' }}
-                    </span>
-                </p>
-            </div>
+            <BookCard v-for="book in books.data" :key="book.id" :book="book" />
         </div>
 
         <!-- Pagination -->
@@ -42,9 +33,10 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/inertia-vue3';
 import { reactive } from 'vue';
+import { Inertia } from '@inertiajs/inertia';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Pages/Components/Pagination.vue';
-import { Inertia } from '@inertiajs/inertia';
+import BookCard from '@/Pages/Components/BookCard.vue';  // ← import
 
 const { props } = usePage();
 const books = props.value.books;

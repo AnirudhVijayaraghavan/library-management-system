@@ -1,5 +1,9 @@
 <template>
     <div class="min-h-screen flex flex-col bg-gray-100">
+
+        <Notifications class="mt-12 -mr-3"/>
+
+
         <!-- Header -->
         <header class="bg-white shadow">
             <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -31,6 +35,7 @@
 <script setup>
 import { Inertia } from '@inertiajs/inertia';
 import { Link } from '@inertiajs/inertia-vue3';
+import Notifications from '@/Pages/Components/Notification.vue';
 
 function logout() {
     Inertia.post('/logout');

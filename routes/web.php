@@ -7,8 +7,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\AuthenticatedSessionController;
 
+// Books
+Route::get('/books/{id}', [BookController::class, 'show'])
+    ->middleware('auth')
+    ->name('books.show');
 Route::get('/books', [BookController::class, 'index'])
-         ->name('books.index');
+    ->middleware('auth')
+    ->name('books.index');
 
 // Protected dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -43,7 +48,7 @@ Route::get('/', function () {
 
     // Guests see the public landing page:
     return Inertia::render('Landing', [
-        'canLogin'    => Route::has('login'),
+        'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
     ]);
 })->name('landing');

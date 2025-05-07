@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Inertia\Inertia;
 use App\Models\Category;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
@@ -16,7 +17,7 @@ class BookController extends Controller
     {
         //
         // Base query: eager-load author & category
-        $query = Book::with(['author', 'category']);
+        $query = Book::with(['author', 'category', 'reviews']);
 
         // Text search
         if ($q = $request->get('q')) {
@@ -29,14 +30,18 @@ class BookController extends Controller
         }
 
         // Paginate
-        $books = $query->paginate(10)
+        $books = $query
+            ->paginate(9)
             ->withQueryString()
             ->through(fn($book) => [
                 'id' => $book->id,
                 'title' => $book->title,
                 'author' => $book->author->name,
                 'category' => $book->category->name,
-                'isAvailable' => is_null($book->currentLoan?->returned_at),
+                'description' => Str::limit($book->description, 100), // snippet
+                'cover_image' => $book->cover_image,
+                'average_rating' => round($book->reviews->avg('rating'), 1) ?: null,
+                'is_available' => is_null($book->currentLoan?->returned_at),
             ]);
 
         // All categories for filter dropdown
@@ -44,8 +49,8 @@ class BookController extends Controller
 
         return Inertia::render('Books/Index', [
             'books' => $books,
-            'filters' => $request->only('q', 'category'),
             'categories' => $categories,
+            'filters' => $request->only('q', 'category'),
         ]);
     }
 
@@ -68,9 +73,37 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Book $id)
     {
         //
+        // Eager-load relationships
+        $id->load(['author', 'category', 'reviews.user']);
+
+        // Shape the data sent to Vue
+        $data = [
+            'id' => $id->id,
+            'title' => $id->title,
+            'author' => $id->author->name,
+            'description' => $id->description,
+            'cover_image' => $id->cover_image,
+            'publisher' => $id->publisher,
+            'publication_date' => $id->publication_date,
+            'category' => $id->category->name,
+            'isbn' => $id->isbn,
+            'page_count' => $id->page_count,
+            'average_rating' => round($id->reviews->avg('rating'), 1) ?: null,
+            'is_available' => is_null($id->currentLoan?->returned_at),
+            'reviews' => $id->reviews->map(fn($r) => [
+                'id' => $r->id,
+                'user' => ['name' => $r->user->name],
+                'rating' => $r->rating,
+                'comment' => $r->comment,
+            ])->toArray(),
+        ];
+
+        return Inertia::render('Books/Show', [
+            'book' => $data,
+        ]);
     }
 
     /**

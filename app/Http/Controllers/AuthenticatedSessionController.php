@@ -44,7 +44,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended(route('dashboard'))->with('success', 'You have successfully logged in.');
     }
 
     /**
@@ -84,6 +84,6 @@ class AuthenticatedSessionController extends Controller
         
         $request->session()->invalidate();
 
-        return redirect()->route('landing');
+        return redirect()->route('landing')->with( 'success', 'You have successfully logged out.');
     }
 }

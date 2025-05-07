@@ -1,5 +1,6 @@
 <template>
     <div>
+        <Notifications class="mt-12 -mr-3 z-10" />
         <HeroSection />
         <FeaturesSection />
         <footer class="bg-white py-6 mt-16">
@@ -13,4 +14,5 @@
 <script setup>
 import HeroSection from '@/Pages/Components/HeroSection.vue'
 import FeaturesSection from '@/Pages/Components/FeaturesSection.vue'
+import Notifications from '@/Pages/Components/Notification.vue';
 </script>
