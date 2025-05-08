@@ -35,7 +35,17 @@
                 <input v-model="form.password_confirmation" id="password_confirmation" type="password" required
                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
             </div>
-
+            
+            <!-- Role selector -->
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700">Sign up as</label>
+                <select v-model="form.role" id="role"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="customer">Customer</option>
+                    <option value="librarian">Librarian</option>
+                </select>
+                <p v-if="form.errors.role" class="mt-1 text-sm text-red-600">{{ form.errors.role }}</p>
+            </div>
             <!-- Submit -->
             <div>
                 <button type="submit" :disabled="form.processing"
@@ -61,6 +71,7 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    role: 'customer',
 });
 
 function submit() {

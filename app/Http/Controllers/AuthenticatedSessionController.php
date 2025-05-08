@@ -37,9 +37,8 @@ class AuthenticatedSessionController extends Controller
         ]);
         $remember = $request->boolean('remember');
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
-            return back()->withErrors([
-                'email' => 'These credentials do not match our records.',
-            ]);
+            session()->flash('failure', 'Incorrect login attempt.');
+            return Inertia::location(route('login'));
         }
 
         $request->session()->regenerate();
@@ -78,12 +77,12 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request)
     {
         //
-        auth()->user()->setRememberToken(null); 
+        auth()->user()->setRememberToken(null);
         auth()->user()->save();
         Auth::logout();
-        
+
         $request->session()->invalidate();
 
-        return redirect()->route('landing')->with( 'success', 'You have successfully logged out.');
+        return redirect()->route('landing')->with('success', 'You have successfully logged out.');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use Inertia\Inertia;
+use App\Models\Author;
 use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -15,42 +16,83 @@ class BookController extends Controller
      */
     public function index(Request $request)
     {
-        //
-        // Base query: eager-load author & category
-        $query = Book::with(['author', 'category', 'reviews']);
+        $q = $request->get('q');
+        $cat = $request->get('category');
+        $auth = $request->get('author');
+        $avail = $request->get('availability');
+        $sort = $request->get('sort', 'title');
+        $direction = $request->get('direction', 'asc');
 
-        // Text search
-        if ($q = $request->get('q')) {
-            $query->where('title', 'like', "%{$q}%");
+        if ($q) {
+            // 1) Use Scout search on the indexed fields (title, description, author, category, isbn)
+            $paginator = Book::search($q)
+                // you can chain where filters if you indexed those fields:
+                // ->when($cat, fn($s) => $s->where('category_id', $cat))
+                // ->when($auth, fn($s) => $s->where('author_id', $auth))
+                ->paginate(9)
+                ->withQueryString();
+
+            // 2) Eager‐load relations on the resulting collection
+            $paginator->getCollection()->load(['author', 'category', 'reviews', 'currentLoan']);
+        } else {
+            // Fallback to Eloquent when no search term
+            $query = Book::with(['author', 'category', 'reviews', 'currentLoan']);
+
+            if ($cat)
+                $query->where('category_id', $cat);
+            if ($auth)
+                $query->where('author_id', $auth);
+            if ($avail !== null && $avail !== '') {
+                $avail == 1
+                    ? $query->whereDoesntHave('currentLoan')
+                    : $query->whereHas('currentLoan');
+            }
+
+            // Sorting (same as before)…
+            switch ($sort) {
+                case 'title':
+                    $query->orderBy('title', $direction);
+                    break;
+                case 'author':
+                    $query->join('authors', 'books.author_id', '=', 'authors.id')
+                        ->orderBy('authors.name', $direction)
+                        ->select('books.*');
+                    break;
+                case 'availability':
+                    $query->leftJoin('loans', 'books.id', '=', 'loans.book_id')
+                        ->orderByRaw(
+                            $direction === 'asc'
+                            ? 'CASE WHEN loans.returned_at IS NULL THEN 1 ELSE 0 END DESC'
+                            : 'CASE WHEN loans.returned_at IS NULL THEN 0 ELSE 1 END DESC'
+                        )
+                        ->select('books.*');
+                    break;
+            }
+
+            $paginator = $query->paginate(9)->withQueryString();
         }
 
-        // Category filter
-        if ($cat = $request->get('category')) {
-            $query->where('category_id', $cat);
-        }
+        // Transform for Inertia
+        $books = $paginator->through(fn($book) => [
+            'id' => $book->id,
+            'title' => $book->title,
+            'author' => $book->author->name,
+            'category' => $book->category->name,
+            'description' => Str::limit($book->description, 100),
+            'cover_image' => $book->cover_image,
+            'average_rating' => round($book->reviews->avg('rating'), 1) ?: null,
+            'is_available' => is_null($book->currentLoan),
+        ]);
 
-        // Paginate
-        $books = $query
-            ->paginate(9)
-            ->withQueryString()
-            ->through(fn($book) => [
-                'id' => $book->id,
-                'title' => $book->title,
-                'author' => $book->author->name,
-                'category' => $book->category->name,
-                'description' => Str::limit($book->description, 100), // snippet
-                'cover_image' => $book->cover_image,
-                'average_rating' => round($book->reviews->avg('rating'), 1) ?: null,
-                'is_available' => is_null($book->currentLoan?->returned_at),
-            ]);
-
-        // All categories for filter dropdown
+        // Filters for the dropdowns
         $categories = Category::orderBy('name')->get()->map->only(['id', 'name']);
+        $authors = Author::orderBy('name')->get()->map->only(['id', 'name']);
 
         return Inertia::render('Books/Index', [
             'books' => $books,
             'categories' => $categories,
-            'filters' => $request->only('q', 'category'),
+            'authors' => $authors,
+            'filters' => $request->only('q', 'category', 'author', 'availability', 'sort', 'direction'),
         ]);
     }
 

@@ -34,7 +34,7 @@ class DashboardController extends Controller
                 'title' => $book->title,
                 'author' => $book->author->name,
                 'description' => $book->description,
-                'cover_image' => $book->cover_image_url,
+                'cover_image' => $book->cover_image,
                 'average_rating' => round($book->reviews->avg('rating'), 1) ?: null,
                 'is_available' => is_null($book->loan?->returned_at),
             ]);

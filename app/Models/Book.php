@@ -6,13 +6,14 @@ use App\Models\Loan;
 use App\Models\Author;
 use App\Models\Review;
 use App\Models\Category;
+use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Book extends Model
 {
     //
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $fillable = [
         'title',
@@ -49,5 +50,15 @@ class Book extends Model
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function toSearchableArray()
+    {
+        return [
+            'title' => $this->title,
+            'isbn' => $this->isbn,
+            'publisher' => $this->publisher,
+            // no author/category here, since they’re not real columns
+        ];
     }
 }
