@@ -36,7 +36,7 @@ class DashboardController extends Controller
                 'description' => $book->description,
                 'cover_image' => $book->cover_image,
                 'average_rating' => round($book->reviews->avg('rating'), 1) ?: null,
-                'is_available' => is_null($book->loan?->returned_at),
+                'is_available' => is_null($book->currentLoan),
             ]);
 
         return Inertia::render('Dashboard', [

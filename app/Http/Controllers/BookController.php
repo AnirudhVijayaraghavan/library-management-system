@@ -14,6 +14,27 @@ class BookController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function adminIndex(Request $request)
+    {
+        $books = Book::with(['author', 'category', 'currentLoan'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->withQueryString()
+            ->through(fn($book) => [
+                'id' => $book->id,
+                'title' => $book->title,
+                'author' => $book->author->name,
+                'category' => $book->category->name,
+                'is_available' => is_null($book->currentLoan?->returned_at),
+                'due_at' => optional($book->currentLoan)->due_at?->toDateString(),
+                'created_at' => $book->created_at->toDateString(),
+            ]);
+
+        return Inertia::render('Librarian/Books/Index', [
+            'books' => $books,
+        ]);
+    }
+
     public function index(Request $request)
     {
         $q = $request->get('q');
@@ -102,6 +123,10 @@ class BookController extends Controller
     public function create()
     {
         //
+        return Inertia::render('Librarian/Books/Create', [
+            'authors' => Author::orderBy('name')->get(['id', 'name']),
+            'categories' => Category::orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
     /**
@@ -110,6 +135,22 @@ class BookController extends Controller
     public function store(Request $request)
     {
         //
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'author_id' => 'required|exists:authors,id',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'cover_image' => 'nullable|url',
+            'publisher' => 'nullable|string|max:255',
+            'publication_date' => 'nullable|date',
+            'isbn' => 'nullable|string|max:20',
+            'page_count' => 'nullable|integer|min:1',
+        ]);
+
+        Book::create($data);
+
+        return redirect()->route('librarian.page')
+            ->with('success', 'Book created.');
     }
 
     /**
@@ -134,7 +175,8 @@ class BookController extends Controller
             'isbn' => $id->isbn,
             'page_count' => $id->page_count,
             'average_rating' => round($id->reviews->avg('rating'), 1) ?: null,
-            'is_available' => is_null($id->currentLoan?->returned_at),
+            'is_available' => is_null($id->currentLoan),
+            'due_at' => optional($id->currentLoan)->due_at?->toDateString(),
             'reviews' => $id->reviews->map(fn($r) => [
                 'id' => $r->id,
                 'user' => ['name' => $r->user->name],
@@ -151,24 +193,50 @@ class BookController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Book $book)
     {
         //
+        return Inertia::render('Librarian/Books/Edit', [
+            'book' => $book,
+            'authors' => Author::orderBy('name')->get(['id', 'name']),
+            'categories' => Category::orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Book $book)
     {
         //
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'author_id' => 'required|exists:authors,id',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'cover_image' => 'nullable|url',
+            'publisher' => 'nullable|string|max:255',
+            'publication_date' => 'nullable|date',
+            'isbn' => 'nullable|string|max:20',
+            'page_count' => 'nullable|integer|min:1',
+        ]);
+
+        $book->update($data);
+
+        return redirect()->route('librarian.page')
+            ->with('success', 'Book updated.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Book $book)
     {
         //
+        $book->delete();
+
+        return redirect()->route('librarian.page')
+            ->with('success', 'Book removed.');
+        ;
     }
 }

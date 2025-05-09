@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\isLibrarian;
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         //
         $middleware->web(append: [
             HandleInertiaRequests::class,
+        ]);
+        $middleware->alias([
+            'isLibrarian' => isLibrarian::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         Inertia::share([
+
             // share only these flash keys
             'flash' => function () {
                 return [
@@ -30,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
                     'failure' => Session::get('failure'),
                 ];
             },
+            'auth.user' => fn() => Auth::user()
+                ? ['id' => Auth::id(), 'name' => Auth::user()->name, 'role' => Auth::user()->role]
+                : null,
         ]);
     }
 }

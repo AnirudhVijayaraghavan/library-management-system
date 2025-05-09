@@ -14,8 +14,8 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('book_id')->constrained()->cascadeOnDelete();
-            $table->tinyInteger('rating')->unsigned();
-            $table->timestamp('due_at')->nullable();
+            $table->timestamp('borrowed_at');
+            $table->timestamp('due_at');
             $table->timestamp('returned_at')->nullable();
             $table->text('comment')->nullable();
             $table->timestamps();

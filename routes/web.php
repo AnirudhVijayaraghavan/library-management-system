@@ -3,9 +3,35 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\LoanController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\AuthenticatedSessionController;
+
+// Librarian routes
+Route::middleware(['auth', 'isLibrarian'])->group(function () {
+    // Show Librarian Page
+    Route::get('/librarians/books', [BookController::class, 'adminIndex'])
+        ->name('librarian.page');
+    // Show the form to create a book
+    Route::get('/librarians/books/create', [BookController::class, 'create'])
+        ->name('librarian.create');
+    // Persist a new book
+    Route::post('/librarians/books/store', [BookController::class, 'store'])
+        ->name('librarian.store');
+    // Show the form to edit
+    Route::get('/librarians/books/{book}/edit', [BookController::class, 'edit'])
+        ->name('librarian.edit');
+    // Update an existing
+    Route::put('/librarians/books/{book}', [BookController::class, 'update'])
+        ->name('librarian.update');
+    // Delete a book
+    Route::delete('/librarians/books/{book}', [BookController::class, 'destroy'])
+        ->name('librarian.destroy');
+    // (Optionally) librarian‐only return
+    Route::put('/librarians/books/{book}/return', [LoanController::class, 'edit'])
+        ->name('librarian.return');
+});
 
 // Books
 Route::get('/books/{id}', [BookController::class, 'show'])
@@ -14,6 +40,9 @@ Route::get('/books/{id}', [BookController::class, 'show'])
 Route::get('/books', [BookController::class, 'index'])
     ->middleware('auth')
     ->name('books.index');
+Route::post('/books/{book}/checkout', [LoanController::class, 'store'])
+    ->middleware('auth')
+    ->name('books.checkout');
 
 // Protected dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])

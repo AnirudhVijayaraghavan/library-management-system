@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Book;
+use App\Models\User;
 use App\Models\Author;
 use App\Models\Category;
 use Illuminate\Support\Carbon;
@@ -15,7 +16,27 @@ class LMSSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
-    {
+    {   
+        // 1. Seed User
+        $users = [
+            [
+                'name' => 'Anirudh Vijayaraghavan',
+                'email' => 'aniroxta@gmail.com',
+                'password' => 'Adadad@131313',
+                'role' => 'customer',
+            ],
+            [
+                'name' => 'Librarian1',
+                'email' => 'anirudh1997@hotmail.com',
+                'password' => 'Adadad@131313',
+                'role' => 'librarian',
+            ],
+        ];
+
+        foreach ($users as $user) {
+            User::firstOrCreate($user);
+        }
+
         // 1. Seed Categories
         $categoryNames = [
             'Fiction',
