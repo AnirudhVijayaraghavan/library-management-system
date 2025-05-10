@@ -143,7 +143,31 @@ class BookController extends Controller
             'cover_image' => 'nullable|url',
             'publisher' => 'nullable|string|max:255',
             'publication_date' => 'nullable|date',
-            'isbn' => 'nullable|string|max:20',
+            'isbn' => 'nullable|string|max:13|min:13',
+            //     'isbn' => [
+            //     'nullable',
+            //     'string',
+            //     // ensure digits + optional hyphens, then checksum
+            //     function ($attribute, $value, $fail) {
+            //         // strip out non-digits (e.g. hyphens)
+            //         $digits = preg_replace('/\D+/', '', $value);
+
+            //         if (strlen($digits) !== 13) {
+            //             return $fail('The '.$attribute.' must contain exactly 13 digits.');
+            //         }
+
+            //         // compute weighted sum
+            //         $sum = 0;
+            //         foreach (str_split($digits) as $i => $digit) {
+            //             $weight = ($i % 2 === 0) ? 1 : 3;
+            //             $sum += $weight * (int) $digit;
+            //         }
+
+            //         if ($sum % 10 !== 0) {
+            //             return $fail('The '.$attribute.' checksum is invalid.');
+            //         }
+            //     },
+            // ],
             'page_count' => 'nullable|integer|min:1',
         ]);
 

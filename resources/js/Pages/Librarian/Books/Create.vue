@@ -102,6 +102,6 @@ const form = useForm({
 });
 
 function submit() {
-    form.post('/librarians/books');
+    form.post('/librarians/books/store');
 }
 </script>

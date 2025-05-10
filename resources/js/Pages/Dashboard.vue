@@ -4,8 +4,20 @@
         <Head title="Dashboard" />
 
         <div class="max-w-7xl mx-auto p-6">
-            <!-- Welcome + Stats -->
-            <h1 class="text-2xl font-bold mb-6">Welcome back, {{ user.name }}!</h1>
+            <!-- Welcome + Admin Button -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                <h1 class="text-2xl font-bold">
+                    Welcome back, {{ user.name }}!
+                </h1>
+
+                <!-- Only visible to librarians -->
+                <Link v-if="stats.role === 'librarian'" href="/librarians/books"
+                    class="mt-4 sm:mt-0 inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+                Admin Panel
+                </Link>
+            </div>
+
+            <!-- Stats -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                 <div class="p-4 bg-white rounded-lg shadow">
                     <h2 class="text-lg font-medium">Total Books</h2>
@@ -33,7 +45,8 @@
 </template>
 
 <script setup>
-import { Head } from '@inertiajs/inertia-vue3';
+import { Head, Link } from '@inertiajs/inertia-vue3';
+import { defineProps } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import BookCard from '@/Pages/Components/BookCard.vue';
 

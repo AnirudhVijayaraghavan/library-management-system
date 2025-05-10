@@ -4,6 +4,8 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\LoanController;
+use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\AuthenticatedSessionController;
@@ -13,6 +15,7 @@ Route::middleware(['auth', 'isLibrarian'])->group(function () {
     // Show Librarian Page
     Route::get('/librarians/books', [BookController::class, 'adminIndex'])
         ->name('librarian.page');
+    // --- Books (existing) ---
     // Show the form to create a book
     Route::get('/librarians/books/create', [BookController::class, 'create'])
         ->name('librarian.create');
@@ -28,9 +31,23 @@ Route::middleware(['auth', 'isLibrarian'])->group(function () {
     // Delete a book
     Route::delete('/librarians/books/{book}', [BookController::class, 'destroy'])
         ->name('librarian.destroy');
-    // (Optionally) librarian‐only return
+
+
+    // --- Loans ---
+    Route::get('/librarians/loans', [LoanController::class, 'index'])
+        ->name('librarian.loan.index');
     Route::put('/librarians/books/{book}/return', [LoanController::class, 'edit'])
         ->name('librarian.return');
+
+    // --- Categories ---
+    Route::get('/librarians/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/librarians/categories/create', [CategoryController::class, 'create'])->name('categories.create');
+    Route::post('/librarians/categories', [CategoryController::class, 'store'])->name('categories.store');
+
+    // --- Authors ---
+    Route::get('/librarians/authors', [AuthorController::class, 'index'])->name('authors.index');
+    Route::get('/librarians/authors/create', [AuthorController::class, 'create'])->name('authors.create');
+    Route::post('/librarians/authors', [AuthorController::class, 'store'])->name('authors.store');
 });
 
 // Books

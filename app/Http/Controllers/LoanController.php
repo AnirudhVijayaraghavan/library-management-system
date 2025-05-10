@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Loan;
+use Inertia\Inertia;
 use Illuminate\Http\Request;
 
 class LoanController extends Controller
@@ -14,6 +15,19 @@ class LoanController extends Controller
     public function index()
     {
         //
+        $loans = Loan::with(['book', 'user'])
+            ->whereNull('returned_at')
+            ->orderBy('due_at')
+            ->get()
+            ->map(fn($loan) => [
+                'id' => $loan->id,
+                'book_title' => $loan->book->title,
+                'user_name' => $loan->user->name,
+                'borrowed_at' => $loan->borrowed_at->toDateString(),
+                'due_at' => $loan->due_at->toDateString(),
+            ]);
+
+        return Inertia::render('Librarian/Loans/Index', compact('loans'));
     }
 
     /**

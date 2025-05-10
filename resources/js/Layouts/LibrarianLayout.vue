@@ -1,6 +1,8 @@
 <template>
     <div class="flex h-screen bg-gray-50 overflow-hidden">
+        <!-- Notifications (if you have them) -->
         <Notifications class="mt-12 -mr-3" />
+
         <!-- Mobile sidebar -->
         <transition name="fade">
             <aside v-if="mobileOpen" class="fixed inset-0 z-40 flex md:hidden">
@@ -8,6 +10,7 @@
                     <div class="h-16 flex items-center justify-between px-4 border-b">
                         <span class="text-xl font-bold">MyLibrary CMS</span>
                         <button @click="mobileOpen = false" class="p-1 rounded hover:bg-gray-200">
+                            <!-- close icon -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -16,6 +19,9 @@
                         </button>
                     </div>
                     <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+                        <Link href="/dashboard" class="block px-3 py-2 rounded hover:bg-gray-200">
+                        Dashboard
+                        </Link>
                         <Link href="/librarians/books" class="block px-3 py-2 rounded hover:bg-gray-200">
                         Books
                         </Link>
@@ -35,11 +41,24 @@
                     MyLibrary CMS
                 </div>
                 <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+                    <Link href="/dashboard" class="block px-3 py-2 rounded hover:bg-gray-200">
+                    Dashboard
+                    </Link>
                     <Link href="/librarians/books" class="block px-3 py-2 rounded hover:bg-gray-200">
                     Books
                     </Link>
                     <Link href="/librarians/books/create" class="block px-3 py-2 rounded hover:bg-gray-200">
                     Add Book
+                    </Link>
+                    <!-- New Links -->
+                    <Link href="/librarians/loans" class="block px-3 py-2 rounded hover:bg-gray-200">
+                    Loans
+                    </Link>
+                    <Link href="/librarians/categories" class="block px-3 py-2 rounded hover:bg-gray-200">
+                    Categories
+                    </Link>
+                    <Link href="/librarians/authors" class="block px-3 py-2 rounded hover:bg-gray-200">
+                    Authors
                     </Link>
                 </nav>
             </div>
@@ -51,16 +70,19 @@
             <header class="flex items-center justify-between px-4 py-2 bg-white border-b">
                 <div class="flex items-center">
                     <button class="md:hidden p-1 mr-2 rounded hover:bg-gray-200" @click="mobileOpen = true">
+                        <!-- menu icon -->
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
-                    <Link href="/" class="text-xl font-bold text-gray-800 hover:text-gray-900">
-                    MyLibrary
+                    <!-- Dashboard link in header -->
+                    <Link href="/dashboard" class="text-xl font-bold text-gray-800 hover:text-gray-900">
+                    Dashboard
                     </Link>
                 </div>
+                <!-- any additional header slots -->
                 <slot name="headerActions" />
             </header>
 
@@ -75,6 +97,8 @@
 <script setup>
 import { ref } from 'vue';
 import { Link } from '@inertiajs/inertia-vue3';
+import Notifications from '@/Pages/Components/Notification.vue';
+
 const mobileOpen = ref(false);
 </script>
 
