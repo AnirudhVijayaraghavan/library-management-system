@@ -61,7 +61,10 @@ class LoanController extends Controller
             'due_at' => now()->addDays(5),
         ]);
 
-        return back()->with('success', "Checked out until {$loan->due_at->toDateString()}");
+        return back()->with(
+            'success',
+            "Checked out until {$loan->due_at->toDateString()}"
+        );
     }
 
     /**
@@ -75,29 +78,22 @@ class LoanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Book $book, Request $request)
+    public function edit(Loan $loan, Request $request)
     {
         //
-        if (!$request->user()->isLibrarian()) {
-            return back()->with('failure', 'Unauthorized.');
-        }
 
-        $loan = $book->currentLoan;
-        if (!$loan) {
-            return back()->with('failure', 'Book is already in the library.');
-        }
-
-        $loan->update(['returned_at' => now()]);
-
-        return back()->with('success', 'Book marked as returned.');
+        return redirect()->route('librarian.loan.index')->with('success', 'Book marked as returned.');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Loan $loan)
     {
         //
+        $loan->update(['returned_at' => now()]);
+
+        return redirect()->route('librarian.page')->with('success', 'Book marked as returned.');
     }
 
     /**

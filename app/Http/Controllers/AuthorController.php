@@ -35,7 +35,7 @@ class AuthorController extends Controller
         //
         $request->validate(['name' => 'required|string|unique:authors,name']);
         Author::create(['name' => $request->name]);
-        return redirect()->route('librarian.authors.index')
+        return redirect()->route('authors.index')
             ->with('success', 'Author added.');
     }
 

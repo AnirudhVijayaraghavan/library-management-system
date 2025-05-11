@@ -8,6 +8,7 @@ use App\Models\Author;
 use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class BookController extends Controller
 {
@@ -17,7 +18,7 @@ class BookController extends Controller
     public function adminIndex(Request $request)
     {
         $books = Book::with(['author', 'category', 'currentLoan'])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('updated_at', 'desc')
             ->paginate(15)
             ->withQueryString()
             ->through(fn($book) => [
@@ -25,9 +26,10 @@ class BookController extends Controller
                 'title' => $book->title,
                 'author' => $book->author->name,
                 'category' => $book->category->name,
-                'is_available' => is_null($book->currentLoan?->returned_at),
+                'is_available' => is_null($book->currentLoan),
                 'due_at' => optional($book->currentLoan)->due_at?->toDateString(),
                 'created_at' => $book->created_at->toDateString(),
+                'loan_id' => optional($book->currentLoan)->id,
             ]);
 
         return Inertia::render('Librarian/Books/Index', [
@@ -143,31 +145,12 @@ class BookController extends Controller
             'cover_image' => 'nullable|url',
             'publisher' => 'nullable|string|max:255',
             'publication_date' => 'nullable|date',
-            'isbn' => 'nullable|string|max:13|min:13',
-            //     'isbn' => [
-            //     'nullable',
-            //     'string',
-            //     // ensure digits + optional hyphens, then checksum
-            //     function ($attribute, $value, $fail) {
-            //         // strip out non-digits (e.g. hyphens)
-            //         $digits = preg_replace('/\D+/', '', $value);
-
-            //         if (strlen($digits) !== 13) {
-            //             return $fail('The '.$attribute.' must contain exactly 13 digits.');
-            //         }
-
-            //         // compute weighted sum
-            //         $sum = 0;
-            //         foreach (str_split($digits) as $i => $digit) {
-            //             $weight = ($i % 2 === 0) ? 1 : 3;
-            //             $sum += $weight * (int) $digit;
-            //         }
-
-            //         if ($sum % 10 !== 0) {
-            //             return $fail('The '.$attribute.' checksum is invalid.');
-            //         }
-            //     },
-            // ],
+            'isbn' => [
+                'nullable',
+                'string',
+                'size:13',
+                'unique:books,isbn',
+            ],
             'page_count' => 'nullable|integer|min:1',
         ]);
 
@@ -206,6 +189,7 @@ class BookController extends Controller
                 'user' => ['name' => $r->user->name],
                 'rating' => $r->rating,
                 'comment' => $r->comment,
+                'created_at' => $r->created_at,
             ])->toArray(),
         ];
 
@@ -241,7 +225,12 @@ class BookController extends Controller
             'cover_image' => 'nullable|url',
             'publisher' => 'nullable|string|max:255',
             'publication_date' => 'nullable|date',
-            'isbn' => 'nullable|string|max:20',
+            'isbn' => [
+                'nullable',
+                'string',
+                'size:13',
+                Rule::unique('books', 'isbn')->ignore($book->id),
+            ],
             'page_count' => 'nullable|integer|min:1',
         ]);
 

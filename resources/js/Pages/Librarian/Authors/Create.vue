@@ -5,11 +5,16 @@
         <form @submit.prevent="submit" class="bg-white p-6 rounded shadow space-y-4">
             <h1 class="text-2xl font-bold">Add Author</h1>
             <div>
-                <label class="block">Name</label>
-                <input v-model="name" class="w-full border rounded p-2" />
-                <p v-if="error" class="text-red-600">{{ error }}</p>
+                <label class="block font-medium">Name</label>
+                <input v-model="form.name" type="text" class="w-full border rounded p-2" />
+                <p v-if="form.errors.name" class="text-red-600 text-sm">
+                    {{ form.errors.name }}
+                </p>
             </div>
-            <button class="bg-indigo-600 text-white px-4 py-2 rounded">Save</button>
+            <button type="submit" :disabled="form.processing"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+                Save
+            </button>
         </form>
     </LibrarianLayout>
 </template>
@@ -23,6 +28,4 @@ const form = useForm({ name: '' });
 function submit() {
     form.post('/librarians/authors');
 }
-
-const error = form.errors.name;
 </script>

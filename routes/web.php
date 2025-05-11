@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RegisteredUserController;
@@ -36,7 +37,7 @@ Route::middleware(['auth', 'isLibrarian'])->group(function () {
     // --- Loans ---
     Route::get('/librarians/loans', [LoanController::class, 'index'])
         ->name('librarian.loan.index');
-    Route::put('/librarians/books/{book}/return', [LoanController::class, 'edit'])
+    Route::put('/librarians/loans/{loan}/return', [LoanController::class, 'update'])
         ->name('librarian.return');
 
     // --- Categories ---
@@ -60,6 +61,10 @@ Route::get('/books', [BookController::class, 'index'])
 Route::post('/books/{book}/checkout', [LoanController::class, 'store'])
     ->middleware('auth')
     ->name('books.checkout');
+Route::post(
+    '/books/{book}/reviews',
+    [ReviewController::class, 'store']
+)->middleware('auth')->name('books.reviews.store');
 
 // Protected dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])
