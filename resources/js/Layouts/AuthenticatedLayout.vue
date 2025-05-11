@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen flex flex-col bg-gray-100">
 
-        <Notifications class="mt-12 -mr-3"/>
+        <Notifications class="mt-12 -mr-3" />
 
 
         <!-- Header -->
@@ -29,6 +29,7 @@
                 © {{ new Date().getFullYear() }} MyLibrary. All rights reserved.
             </div>
         </footer>
+        <BackToTop />
     </div>
 </template>
 
@@ -36,6 +37,7 @@
 import { Inertia } from '@inertiajs/inertia';
 import { Link } from '@inertiajs/inertia-vue3';
 import Notifications from '@/Pages/Components/Notification.vue';
+import BackToTop from '@/Pages/Components/BackToTop.vue';
 
 function logout() {
     Inertia.post('/logout');

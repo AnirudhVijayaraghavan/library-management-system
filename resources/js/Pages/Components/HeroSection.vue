@@ -1,39 +1,26 @@
 <template>
-    <section class="relative bg-white overflow-hidden">
-        <nav class="bg-white border-b">
-            <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
-                <a href="/" class="text-2xl font-bold text-indigo-600">MyLibrary</a>
-                <div>
-                    <a href="/login" class="px-3 py-2 text-gray-700 hover:text-indigo-600">Login</a>
-                    <a href="/register" class="ml-4 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Sign
-                        Up</a>
-                </div>
-            </div>
-        </nav>
-        <div class="max-w-7xl mx-auto px-4 py-16 text-center lg:text-left">
-            <h1 class="text-5xl font-extrabold text-gray-900">
-                Your Gateway to <span class="text-indigo-600">Unlimited Knowledge</span>
+    <section class="relative h-screen bg-cover bg-center" style="background-image:url('/images/library-hero.jpg')">
+        <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center px-4">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight max-w-3xl">
+                Your Gateway to Unlimited Knowledge
             </h1>
-            <p class="mt-4 text-lg text-gray-500 max-w-xl">
-                Browse, borrow, and manage books effortlessly with our modern library system.
+            <p class="mt-4 text-lg sm:text-xl text-gray-200 max-w-2xl">
+                Browse, borrow, and enjoy your next great read—anywhere, anytime.
             </p>
-            <div class="mt-6 flex justify-center lg:justify-start">
-                <input v-model="query" type="text" placeholder="Search books..."
-                    class="px-4 py-2 w-64 border rounded-l-md focus:ring-2 focus:ring-indigo-500" />
-                <button @click="search" class="px-4 py-2 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700">
-                    Search
-                </button>
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                <Link href="/books"
+                    class="px-6 py-3 bg-indigo-500 text-white font-semibold rounded-full shadow hover:bg-indigo-600 transition">
+                Browse Catalog
+                </Link>
+                <Link href="/register"
+                    class="px-6 py-3 bg-white text-indigo-700 font-semibold rounded-full shadow hover:bg-gray-100 transition">
+                Sign Up Free
+                </Link>
             </div>
         </div>
     </section>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Inertia } from '@inertiajs/inertia';
-
-const query = ref('');
-function search() {
-    Inertia.get('/books/search', { q: query.value });
-}
+import { Link } from '@inertiajs/inertia-vue3';
 </script>

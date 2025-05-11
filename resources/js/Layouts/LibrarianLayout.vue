@@ -75,6 +75,7 @@
                 <slot />
             </main>
         </div>
+        <BackToTop />
     </div>
 </template>
 
@@ -82,6 +83,7 @@
 import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/inertia-vue3';
 import Notifications from '@/Pages/Components/Notification.vue';
+import BackToTop from '@/Pages/Components/BackToTop.vue';
 
 // Reactive for mobile open/close
 const mobileOpen = ref(false);

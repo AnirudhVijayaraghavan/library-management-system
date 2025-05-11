@@ -1,3 +1,4 @@
+<!-- resources/js/Pages/Components/FeatureCard.vue -->
 <template>
     <div class="p-6 bg-white rounded-lg shadow hover:shadow-lg transition">
         <div class="text-indigo-600 text-4xl mb-4">{{ icon }}</div>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Book;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
@@ -96,10 +97,11 @@ Route::get('/', function () {
         //—or if you'd rather redirect so the URL changes:
         return redirect()->route('dashboard');
     }
-
+    $featuredBooks = Book::latest()->take(8)->get();
     // Guests see the public landing page:
     return Inertia::render('Landing', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
+        compact('featuredBooks')
     ]);
 })->name('landing');

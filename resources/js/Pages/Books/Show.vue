@@ -5,69 +5,74 @@
         <Head :title="book.title" />
 
         <!-- Hero: Cover + Info -->
-        <section class="max-w-5xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Cover -->
-            <div class="md:col-span-1">
-                <img v-if="book.cover_image" :src="book.cover_image" :alt="`Cover of ${book.title}`"
-                    class="w-full h-auto rounded-lg shadow-lg object-cover" />
-            </div>
-
-            <!-- Info -->
-            <div class="md:col-span-2 space-y-4">
-                <h1 class="text-4xl font-extrabold">{{ book.title }}</h1>
-                <p class="text-lg text-gray-600">by <span class="font-medium">{{ book.author }}</span></p>
-                <p class="text-gray-700 leading-relaxed">{{ book.description }}</p>
-
-                <!-- Details List -->
-                <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-700">
-                    <li><strong>Publisher:</strong> {{ book.publisher || '—' }}</li>
-                    <li><strong>Published:</strong> {{ book.publication_date || '—' }}</li>
-                    <li><strong>Category:</strong> {{ book.category }}</li>
-                    <li><strong>ISBN:</strong> {{ book.isbn }}</li>
-                    <li><strong>Pages:</strong> {{ book.page_count }}</li>
-                </ul>
-
-                <!-- Availability & Rating -->
-                <div class="flex items-center space-x-4 mt-4">
-                    <div class="flex items-center space-x-1">
-                        <template v-for="i in 5" :key="i">
-                            <svg v-if="i <= (book.average_rating || 0)" xmlns="http://www.w3.org/2000/svg"
-                                class="h-6 w-6 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.384 2.458a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.384-2.458a1 1 0 00-1.175 0l-3.384 2.458c-.784.57-1.838-.197-1.54-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.049 9.397c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.97z" />
-                            </svg>
-                            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300"
-                                viewBox="0 0 20 20" fill="currentColor">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.384 2.458a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.384-2.458a1 1 0 00-1.175 0l-3.384 2.458c-.784.57-1.838-.197-1.54-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.049 9.397c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.97z" />
-                            </svg>
-                        </template>
-                        <span class="ml-2 text-gray-600">
-                            {{ book.average_rating ? book.average_rating.toFixed(1) + '/5' : '—/5' }}
-                        </span>
-                    </div>
-                    <span class="px-3 py-1 rounded-full text-sm font-medium" :class="book.is_available
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'">
-                        {{ book.is_available ? 'Available' : 'Checked out' }}
-                        <span v-if="!book.is_available && book.due_at" class="ml-1 font-normal">
-                            (Due {{ book.due_at }})
-                        </span>
-                    </span>
+        <section class="mt-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                <!-- Cover -->
+                <div>
+                    <img v-if="book.cover_image" :src="book.cover_image" :alt="`Cover of ${book.title}`"
+                        class="w-full rounded-lg shadow-lg object-cover" />
                 </div>
 
-                <!-- Action Button -->
-                <div class="mt-6">
-                    <button v-if="user?.role === 'customer'" @click="book.is_available && checkout()"
-                        :disabled="!book.is_available" class="inline-flex items-center px-6 py-3 rounded-full font-semibold text-white 
+                <!-- Info -->
+                <div class="md:col-span-2 space-y-4">
+                    <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight">
+                        {{ book.title }}
+                    </h1>
+                    <p class="text-base sm:text-lg text-gray-600">
+                        by <span class="font-medium">{{ book.author }}</span>
+                    </p>
+                    <p class="text-gray-700 text-sm sm:text-base leading-relaxed">
+                        {{ book.description }}
+                    </p>
+
+                    <!-- Details Grid -->
+                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-700 text-sm">
+                        <li><strong>Publisher:</strong> {{ book.publisher || '—' }}</li>
+                        <li><strong>Published:</strong> {{ book.publication_date || '—' }}</li>
+                        <li><strong>Category:</strong> {{ book.category }}</li>
+                        <li><strong>ISBN:</strong> {{ book.isbn }}</li>
+                        <li><strong>Pages:</strong> {{ book.page_count }}</li>
+                    </ul>
+
+                    <!-- Availability & Rating -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mt-4">
+                        <!-- Stars -->
+                        <div class="flex items-center space-x-1 mb-2 sm:mb-0">
+                            <template v-for="i in 5" :key="i">
+                                <svg v-if="i <= (book.average_rating || 0)" xmlns="http://www.w3.org/2000/svg"
+                                    class="h-6 w-6 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.384 2.458a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.384-2.458a1 1 0 00-1.175 0l-3.384 2.458c-.784.57-1.838-.197-1.54-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.049 9.397c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.97z" />
+                                </svg>
+                                <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.384 2.458a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.384-2.458a1 1 0 00-1.175 0l-3.384 2.458c-.784.57-1.838-.197-1.54-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.049 9.397c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.97z" />
+                                </svg>
+                            </template>
+                            <span class="ml-2 text-gray-600">
+                                {{ book.average_rating ? book.average_rating.toFixed(1) + '/5' : '—/5' }}
+                            </span>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-sm font-medium" :class="book.is_available
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'">
+                            {{ book.is_available ? 'Available' : 'Checked out' }}
+                            <span v-if="!book.is_available && book.due_at" class="ml-1 font-normal">
+                                (Due {{ book.due_at }})
+                            </span>
+                        </span>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="mt-6">
+                        <button v-if="user?.role === 'customer'" @click="book.is_available && checkout()"
+                            :disabled="!book.is_available" class="inline-flex items-center px-6 py-3 rounded-full font-semibold text-white 
                      transition disabled:bg-gray-300 disabled:cursor-not-allowed
                      bg-green-600 hover:bg-green-700">
-                        <svg v-if="book.is_available" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2"
-                            viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M4 3a1 1 0 000 2h2v10H4a1 1 0 100 2h12a1 1 0 100-2h-2V5h2a1 1 0 100-2H4z" />
-                        </svg>
-                        {{ book.is_available ? 'Check Out' : 'Unavailable' }}
-                    </button>
+                            {{ book.is_available ? 'Check Out' : 'Unavailable' }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>

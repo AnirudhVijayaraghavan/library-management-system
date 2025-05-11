@@ -32,6 +32,10 @@ class ReviewController extends Controller
         if (!$request->user()->isCustomer()) {
             abort(403);
         }
+        // prevent more than one review per user per book
+        if ($book->reviews()->where('user_id', auth()->user()->id)->exists()) {
+            return redirect()->route('dashboard')->with('failure', 'You have already reviewed this book.');
+        }
 
         $data = $request->validate([
             'rating' => 'required|integer|between:1,5',

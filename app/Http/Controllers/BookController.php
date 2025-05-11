@@ -189,7 +189,7 @@ class BookController extends Controller
                 'user' => ['name' => $r->user->name],
                 'rating' => $r->rating,
                 'comment' => $r->comment,
-                'created_at' => $r->created_at,
+                'created_at' => $r->created_at->format('M j, Y'),
             ])->toArray(),
         ];
 
