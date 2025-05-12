@@ -16,10 +16,8 @@ A full-stack, role-based **Library Management System** built on Laravel 10, Vue 
    - [Environment Setup](#environment-setup)  
    - [Database & Seeding](#database--seeding)  
    - [Running the App](#running-the-app)  
-4. [⚙️ Configuration Options](#️-configuration-options)  
-5. [🧪 Testing](#-testing)  
-6. [🤝 Contributing](#-contributing)  
-7. [📄 License](#-license)  
+4. [🧪 Testing](#-testing)  
+5. [📄 License](#-license)  
 
 ---
 
@@ -47,11 +45,11 @@ A full-stack, role-based **Library Management System** built on Laravel 10, Vue 
 
 | Layer            | Technology                        |
 | ---------------- | --------------------------------- |
-| **Backend**      | Laravel 10                        |
+| **Backend**      | Laravel                         |
 | **Frontend**     | Vue 3 + Inertia.js + Vite         |
 | **Styling**      | Tailwind CSS                      |
-| **Database**     | MySQL (default) / SQLite (optional) |
-| **Search (opt.)**| Laravel Scout + Typesense         |
+| **Database**     | SQLite (default)  |
+| **Search (opt.)**| Laravel Scout + Database Driver         |
 | **Icons**        | Emoji-based (📚 ⏱️ 💬)              |
 
 ---
@@ -63,7 +61,7 @@ A full-stack, role-based **Library Management System** built on Laravel 10, Vue 
 - PHP 8.1+  
 - Composer  
 - Node.js 16+ & npm  
-- MySQL **or** SQLite  
+- MySQL **or** SQLite  , by default, the app uses SQLite driver as per the .env.example.
 
 ---
 
@@ -80,6 +78,15 @@ composer install
 # 3. Install JS dependencies
 npm install
 
-# 4. Run Migrations and Seeders
-php artisan migrate
-php artisan db:seed LMSSeeder
+# 4. Copy .env and generate app key
+cp .env.example .env
+php artisan key:generate
+
+# 5. Create SQLite file at the root of the database folder.
+touch database.sqlite
+
+# 6. Database and seeding, Drop all tables, run migrations & seed via LMSSeeder
+php artisan migrate:fresh --seed --seeder=LMSSeeder
+
+# 7. Running the app
+composer dev
