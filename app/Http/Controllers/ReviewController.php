@@ -31,9 +31,10 @@ class ReviewController extends Controller
     public function store(Book $book, Request $request)
     {
         //
-        // if (Gate::denies('isLibrarian')) {
-        //     return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
-        // }
+        $gateAuthorization = Gate::inspect('create', Review::class);
+        if ($gateAuthorization->denied()) {
+            return redirect()->route('books.index')->with('failure', 'Unauthorized.');
+        }
         // prevent more than one review per user per book
         if ($book->reviews()->where('user_id', auth()->user()->id)->exists()) {
             return redirect()->route('dashboard')->with('failure', 'You have already reviewed this book.');
