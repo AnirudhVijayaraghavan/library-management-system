@@ -1,4 +1,3 @@
-<!-- resources/js/Pages/Books/Show.vue -->
 <template>
     <AuthenticatedLayout>
 

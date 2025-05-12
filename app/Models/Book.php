@@ -58,7 +58,7 @@ class Book extends Model
             'title' => $this->title,
             'isbn' => $this->isbn,
             'publisher' => $this->publisher,
-            // no author/category here, since they’re not real columns
+            
         ];
     }
 }

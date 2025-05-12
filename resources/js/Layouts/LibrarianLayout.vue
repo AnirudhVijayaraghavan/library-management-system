@@ -88,7 +88,6 @@ import BackToTop from '@/Pages/Components/BackToTop.vue';
 // Reactive for mobile open/close
 const mobileOpen = ref(false);
 
-// Helper component for sidebar links
 const SidebarLink = {
     props: ['to', 'label', 'active'],
     template: `

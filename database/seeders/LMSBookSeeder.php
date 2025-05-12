@@ -23,14 +23,11 @@ class LMSBookSeeder extends Seeder
         $keepIds = Book::whereHas('currentLoan')->pluck('id')->all();
 
         // 2) Delete everything else from `books`
-        //    (cascadeOnDelete will remove their reviews, but leaves authors/categories intact)
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+       DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Book::whereNotIn('id', $keepIds)->delete();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // 3) If you want to reseed categories/authors too, do so here or just skip to books:
-        //    (we’re assuming you already have categories & authors in place)
-
+        
         // --- Helpers for new random data ---
         $words = ['Shadows', 'Light', 'Journey', 'Secret', 'Legacy', 'Dream', 'Whisper', 'Echo', 'Flame', 'Storm', 'Promise', 'Gate', 'Mirror', 'Song', 'River', 'Soul', 'Memory', 'Edge', 'Fall', 'Rise'];
         $publishers = ['Penguin Random House', 'HarperCollins', 'Simon & Schuster', 'Macmillan', 'Hachette', 'Scholastic', 'Oxford Press', 'Cambridge Press'];

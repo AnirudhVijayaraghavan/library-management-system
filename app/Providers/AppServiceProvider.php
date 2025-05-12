@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
         //
         Inertia::share([
 
-            // share only these flash keys
+            
             'flash' => function () {
                 return [
                     'success' => Session::get('success'),

@@ -35,7 +35,6 @@ class ReviewController extends Controller
         if ($gateAuthorization->denied()) {
             return redirect()->route('books.index')->with('failure', 'Unauthorized.');
         }
-        // prevent more than one review per user per book
         if ($book->reviews()->where('user_id', auth()->user()->id)->exists()) {
             return redirect()->route('dashboard')->with('failure', 'You have already reviewed this book.');
         }
@@ -45,7 +44,6 @@ class ReviewController extends Controller
             'comment' => 'required|string|max:1000',
         ]);
 
-        // Attach to the book
         $book->reviews()->create([
             'user_id' => $request->user()->id,
             'rating' => $data['rating'],
@@ -84,16 +82,13 @@ class ReviewController extends Controller
             return redirect()->route('books.index')->with('failure', 'Unauthorized.');
         }
         // Gate::inspect('update', $review);
-        // 2) Validate
         $data = $request->validate([
             'rating' => 'required|integer|between:1,5',
             'comment' => 'required|string|max:1000',
         ]);
 
-        // 3) Persist
         $review->update($data);
 
-        // 4) Redirect back with success
         return redirect()->route('books.index')->with('success', 'Your review was updated.');
     }
 

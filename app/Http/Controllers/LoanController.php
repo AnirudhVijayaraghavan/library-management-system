@@ -48,12 +48,10 @@ class LoanController extends Controller
     public function store(Book $book, Request $request)
     {
         //
-        // only customers can check out
         if (!$request->user()->isCustomer()) {
             abort(403);
         }
 
-        // already on loan?
         if ($book->currentLoan) {
             return back()->with('failure', 'This book is not available.');
         }

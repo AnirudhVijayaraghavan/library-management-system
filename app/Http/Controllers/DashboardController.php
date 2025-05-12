@@ -18,13 +18,11 @@ class DashboardController extends Controller
         //
         $user = auth()->user();
 
-        // Universal stats
         $totalBooks = Book::count();
         $borrowedBooks = Loan::whereNull('returned_at')
             ->when($user->role === 'customer', fn($q) => $q->where('user_id', $user->id))
             ->count();
 
-        // Featured books with avg rating
         $featured = Book::with(['author', 'reviews'])
             ->inRandomOrder()
             ->limit(6)

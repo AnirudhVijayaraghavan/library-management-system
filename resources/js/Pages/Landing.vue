@@ -23,6 +23,5 @@ import FeaturesSection from '@/Pages/Components/FeaturesSection.vue';
 import NewArrivalsSection from '@/Pages/Components/NewArrivalsSection.vue';
 import Notifications from '@/Pages/Components/Notification.vue';
 
-// Pull in the “featuredBooks” prop your controller supplies:
 const featuredBooks = usePage().props.value.featuredBooks || [];
 </script>

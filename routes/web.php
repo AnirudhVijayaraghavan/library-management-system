@@ -17,7 +17,7 @@ Route::middleware(['auth', 'isLibrarian'])->group(function () {
     // Show Librarian Page
     Route::get('/librarians/books', [BookController::class, 'adminIndex'])
         ->name('librarian.page');
-    // --- Books (existing) ---
+    // Books (existing) 
     // Show the form to create a book
     Route::get('/librarians/books/create', [BookController::class, 'create'])
         ->name('librarian.create');
@@ -35,18 +35,18 @@ Route::middleware(['auth', 'isLibrarian'])->group(function () {
         ->name('librarian.destroy');
 
 
-    // --- Loans ---
+    // Loans 
     Route::get('/librarians/loans', [LoanController::class, 'index'])
         ->name('librarian.loan.index');
     Route::put('/librarians/loans/{loan}/return', [LoanController::class, 'update'])
         ->name('librarian.return');
 
-    // --- Categories ---
+    // Categories 
     Route::get('/librarians/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/librarians/categories/create', [CategoryController::class, 'create'])->name('categories.create');
     Route::post('/librarians/categories', [CategoryController::class, 'store'])->name('categories.store');
 
-    // --- Authors ---
+    // Authors
     Route::get('/librarians/authors', [AuthorController::class, 'index'])->name('authors.index');
     Route::get('/librarians/authors/create', [AuthorController::class, 'create'])->name('authors.create');
     Route::post('/librarians/authors', [AuthorController::class, 'store'])->name('authors.store');
@@ -101,9 +101,6 @@ Route::post('/register', [RegisteredUserController::class, 'store'])
 // Route::inertia('/', 'Landing')->name('landing');
 Route::get('/', function () {
     if (Auth::check()) {
-        // If you want to render the Dashboard component in place:
-        // return Inertia::render('Dashboard');
-        //—or if you'd rather redirect so the URL changes:
         return redirect()->route('dashboard');
     }
     $featuredBooks = Book::latest()->take(8)->get();

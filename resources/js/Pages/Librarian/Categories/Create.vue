@@ -8,7 +8,6 @@
 
             <div>
                 <label class="block font-medium">Name</label>
-                <!-- bind to form.name -->
                 <input v-model="form.name" type="text" class="w-full border rounded p-2" />
                 <!-- show validation error -->
                 <p v-if="form.errors.name" class="text-red-600 text-sm">
@@ -28,7 +27,6 @@
 import { Head, useForm } from '@inertiajs/inertia-vue3';
 import LibrarianLayout from '@/Layouts/LibrarianLayout.vue';
 
-// useForm gives us form.name, form.errors, form.post, etc.
 const form = useForm({
     name: '',
 });
@@ -36,7 +34,6 @@ const form = useForm({
 function submit() {
     form.post('/librarians/categories', {
         onSuccess: () => {
-            // optionally reset the form or show a message
         },
     });
 }

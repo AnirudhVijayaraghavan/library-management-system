@@ -6,7 +6,6 @@
         <form @submit.prevent="submit" class="bg-white rounded shadow p-6 space-y-4">
             <h1 class="text-2xl font-bold">Edit Book</h1>
 
-            <!-- bind exactly as Create.vue except initial values from book -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block font-medium">Title</label>
@@ -34,8 +33,6 @@
                 </div>
             </div>
 
-            <!-- rest identical to Create.vue -->
-            <!-- ... description, publisher, date, page_count, cover_image ... -->
             <!-- Description -->
             <div>
                 <label class="block font-medium">Description</label>

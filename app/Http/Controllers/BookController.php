@@ -52,18 +52,13 @@ class BookController extends Controller
         $direction = $request->get('direction', 'asc');
 
         if ($q) {
-            // 1) Use Scout search on the indexed fields (title, description, author, category, isbn)
+
             $paginator = Book::search($q)
-                // you can chain where filters if you indexed those fields:
-                // ->when($cat, fn($s) => $s->where('category_id', $cat))
-                // ->when($auth, fn($s) => $s->where('author_id', $auth))
                 ->paginate(9)
                 ->withQueryString();
 
-            // 2) Eager‐load relations on the resulting collection
             $paginator->getCollection()->load(['author', 'category', 'reviews', 'currentLoan']);
         } else {
-            // Fallback to Eloquent when no search term
             $query = Book::with(['author', 'category', 'reviews', 'currentLoan']);
 
             if ($cat)
@@ -76,7 +71,6 @@ class BookController extends Controller
                     : $query->whereHas('currentLoan');
             }
 
-            // Sorting (same as before)…
             switch ($sort) {
                 case 'title':
                     $query->orderBy('title', $direction);
@@ -100,7 +94,6 @@ class BookController extends Controller
             $paginator = $query->paginate(9)->withQueryString();
         }
 
-        // Transform for Inertia
         $books = $paginator->through(fn($book) => [
             'id' => $book->id,
             'title' => $book->title,
@@ -112,7 +105,6 @@ class BookController extends Controller
             'is_available' => is_null($book->currentLoan),
         ]);
 
-        // Filters for the dropdowns
         $categories = Category::orderBy('name')->get()->map->only(['id', 'name']);
         $authors = Author::orderBy('name')->get()->map->only(['id', 'name']);
 
@@ -177,10 +169,8 @@ class BookController extends Controller
     public function show(Book $id)
     {
         //
-        // Eager-load relationships
         $id->load(['author', 'category', 'reviews.user']);
 
-        // Shape the data sent to Vue
         $data = [
             'id' => $id->id,
             'title' => $id->title,

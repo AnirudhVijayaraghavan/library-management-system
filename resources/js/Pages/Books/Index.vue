@@ -107,7 +107,3 @@ function getBooks() {
     });
 }
 </script>
-
-<style scoped>
-/* Additional styling tweaks can go here */
-</style>
