@@ -9,6 +9,7 @@ use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
 class BookController extends Controller
 {
@@ -17,6 +18,9 @@ class BookController extends Controller
      */
     public function adminIndex(Request $request)
     {
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         $books = Book::with(['author', 'category', 'currentLoan'])
             ->orderBy('updated_at', 'desc')
             ->paginate(15)
@@ -39,6 +43,7 @@ class BookController extends Controller
 
     public function index(Request $request)
     {
+
         $q = $request->get('q');
         $cat = $request->get('category');
         $auth = $request->get('author');
@@ -125,6 +130,9 @@ class BookController extends Controller
     public function create()
     {
         //
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         return Inertia::render('Librarian/Books/Create', [
             'authors' => Author::orderBy('name')->get(['id', 'name']),
             'categories' => Category::orderBy('name')->get(['id', 'name']),
@@ -137,6 +145,9 @@ class BookController extends Controller
     public function store(Request $request)
     {
         //
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'author_id' => 'required|exists:authors,id',
@@ -186,7 +197,10 @@ class BookController extends Controller
             'due_at' => optional($id->currentLoan)->due_at?->toDateString(),
             'reviews' => $id->reviews->map(fn($r) => [
                 'id' => $r->id,
-                'user' => ['name' => $r->user->name],
+                'user' => [
+                    'id' => $r->user->id,
+                    'name' => $r->user->name,
+                ],
                 'rating' => $r->rating,
                 'comment' => $r->comment,
                 'created_at' => $r->created_at->format('M j, Y'),
@@ -204,6 +218,9 @@ class BookController extends Controller
     public function edit(Book $book)
     {
         //
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         return Inertia::render('Librarian/Books/Edit', [
             'book' => $book,
             'authors' => Author::orderBy('name')->get(['id', 'name']),
@@ -217,6 +234,9 @@ class BookController extends Controller
     public function update(Request $request, Book $book)
     {
         //
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'author_id' => 'required|exists:authors,id',
@@ -246,6 +266,9 @@ class BookController extends Controller
     public function destroy(Book $book)
     {
         //
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         $book->delete();
 
         return redirect()->route('librarian.page')

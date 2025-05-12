@@ -66,6 +66,15 @@ Route::post(
     '/books/{book}/reviews',
     [ReviewController::class, 'store']
 )->middleware('auth')->name('books.reviews.store');
+Route::put(
+    '/books/{book}/reviews/{review}',
+    [ReviewController::class, 'update']
+)->middleware('auth')->name('books.reviews.update');
+// (If you also want delete:)
+Route::delete(
+    '/books/{book}/reviews/{review}',
+    [ReviewController::class, 'destroy']
+)->middleware('auth')->name('books.reviews.destroy');
 
 // Protected dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])

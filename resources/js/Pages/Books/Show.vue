@@ -113,11 +113,47 @@
 
                             <!-- Reviewer & Date -->
                             <div class="text-gray-600 text-sm">
+                                <!-- Show “Edit” only if you’re the author -->
+                                <button v-if="user?.id === review.user.id" @click="startEdit(review)"
+                                    class="text-indigo-600 hover:underline text-sm">
+                                    Edit
+                                </button>
+                                <span v-if="user?.id === review.user.id" class="mx-1">•</span>
+                                <button v-if="user?.id === review.user.id" @click="openDeleteModal(review.id)"
+                                    class="text-red-600 hover:underline text-sm">
+                                    Delete
+                                </button>
+                                <span v-if="user?.id === review.user.id" class="mx-1">•</span>
+
                                 <span class="font-medium">{{ review.user.name }}</span>
                                 <span class="mx-1">•</span>
                                 <time :datetime="review.created_at">{{ review.created_at }}</time>
                             </div>
                         </header>
+                        <!-- If this review is being edited, show the form -->
+                        <div v-if="editingId === review.id" class="space-y-4">
+                            <div class="flex items-center space-x-2">
+                                <label class="font-medium">Rating:</label>
+                                <select v-model="editForm.rating" class="border rounded p-1">
+                                    <option v-for="n in 5" :key="n" :value="n">{{ n }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="font-medium">Comment:</label>
+                                <textarea v-model="editForm.comment" rows="3"
+                                    class="w-full border rounded p-2"></textarea>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button @click="submitEdit" :disabled="editForm.processing"
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+                                    Save
+                                </button>
+                                <button @click="cancelEdit"
+                                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
 
                         <!-- Comment -->
                         <p class="text-gray-800 leading-relaxed">
@@ -182,7 +218,19 @@
                 </form>
             </div>
         </section>
-
+        <!-- Delete Confirmation Modal -->
+        <Modal v-model:modelValue="showDeleteModal" title="Confirm Deletion">
+            <p class="mb-4">Are you sure you want to delete your review? This cannot be undone.</p>
+            <template #footer>
+                <button @click="cancelDelete"
+                    class="mr-2 bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">
+                    Cancel
+                </button>
+                <button @click="confirmDelete" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                    Yes, Delete
+                </button>
+            </template>
+        </Modal>
         <!-- Checkout Success Modal -->
         <Modal v-model:modelValue="showModal" title="Book Checked Out!">
             <p class="mb-4">
@@ -205,10 +253,11 @@
 
 <script setup>
 import { Head, Link, usePage, useForm } from '@inertiajs/inertia-vue3';
-import { defineProps, ref } from 'vue';
+import { defineProps, ref, computed } from 'vue';
 import { Inertia } from '@inertiajs/inertia';
 import Modal from '@/Pages/Components/Modal.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { route } from 'ziggy-js';
 
 // Props & user
 const { book } = defineProps({ book: Object });
@@ -226,6 +275,66 @@ function submitReview() {
         {
             preserveScroll: true,
             onSuccess: () => form.reset('rating', 'comment'),
+        }
+    );
+}
+// delete‐modal state
+const showDeleteModal = ref(false);
+const deleteId = ref(null);
+
+// opens the modal
+function openDeleteModal(id) {
+    deleteId.value = id;
+    showDeleteModal.value = true;
+}
+
+// user clicks “Cancel”
+function cancelDelete() {
+    showDeleteModal.value = false;
+    deleteId.value = null;
+}
+
+// user confirms deletion
+function confirmDelete() {
+    showDeleteModal.value = false;
+
+    Inertia.delete(
+        `/books/${book.id}/reviews/${deleteId.value}`,
+        {},
+        {
+            onSuccess: () => {
+                // if you have inline edit open, close it
+                cancelEdit();
+            }
+        }
+    );
+}
+// State for inline edit
+const editingId = ref(null);
+const editForm = useForm({
+    rating: 0,
+    comment: '',
+});
+
+// Kick off edit
+function startEdit(review) {
+    editingId.value = review.id;
+    editForm.rating = review.rating;
+    editForm.comment = review.comment;
+}
+
+// Cancel edit
+function cancelEdit() {
+    editingId.value = null;
+    editForm.reset();
+}
+
+// Submit update
+function submitEdit() {
+    editForm.put(
+        `/books/${book.id}/reviews/${editingId.value}`,
+        {
+            onSuccess: cancelEdit
         }
     );
 }

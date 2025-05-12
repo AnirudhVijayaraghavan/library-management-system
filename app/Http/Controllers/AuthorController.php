@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Models\Author;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class AuthorController extends Controller
 {
@@ -14,6 +15,9 @@ class AuthorController extends Controller
     public function index()
     {
         //
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         $authors = Author::orderBy('name')->get();
         return Inertia::render('Librarian/Authors/Index', compact('authors'));
     }
@@ -33,6 +37,9 @@ class AuthorController extends Controller
     public function store(Request $request)
     {
         //
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         $request->validate(['name' => 'required|string|unique:authors,name']);
         Author::create(['name' => $request->name]);
         return redirect()->route('authors.index')

@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Loan;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class LoanController extends Controller
 {
@@ -15,6 +16,9 @@ class LoanController extends Controller
     public function index()
     {
         //
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         $loans = Loan::with(['book', 'user'])
             ->whereNull('returned_at')
             ->orderBy('due_at')
@@ -91,6 +95,9 @@ class LoanController extends Controller
     public function update(Request $request, Loan $loan)
     {
         //
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         $loan->update(['returned_at' => now()]);
 
         return redirect()->route('librarian.page')->with('success', 'Book marked as returned.');

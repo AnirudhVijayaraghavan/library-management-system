@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class CategoryController extends Controller
 {
@@ -14,6 +15,9 @@ class CategoryController extends Controller
     public function index()
     {
         //
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         $categories = Category::orderBy('name')->get();
         return Inertia::render('Librarian/Categories/Index', compact('categories'));
     }
@@ -33,6 +37,9 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         //
+        if (Gate::denies('isLibrarian')) {
+            return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
+        }
         $request->validate(['name' => 'required|string|unique:categories,name']);
         Category::create(['name' => $request->name]);
         return redirect()->route('categories.index')
