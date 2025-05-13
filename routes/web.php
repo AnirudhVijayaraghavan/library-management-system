@@ -9,8 +9,21 @@ use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\AuthenticatedSessionController;
+
+
+// Profile routes
+Route::get('/profile', [UserProfileController::class, 'edit'])
+    ->middleware('auth')
+    ->name('profile.edit');
+Route::put('/profile', [UserProfileController::class, 'update'])
+    ->middleware('auth')
+    ->name('profile.update');
+Route::put('/profile/password', [UserProfileController::class, 'updatePassword'])
+    ->middleware('auth')
+    ->name('profile.password');
 
 // Librarian routes
 Route::middleware(['auth', 'isLibrarian'])->group(function () {
