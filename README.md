@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/github/license/yourusername/mylibrary)](LICENSE) [![Laravel](https://img.shields.io/badge/Laravel-10.x-red)](https://laravel.com) [![Vue](https://img.shields.io/badge/Vue–3-green)](https://vuejs.org) [![Inertia.js](https://img.shields.io/badge/Inertia.js-0.13-blue)](https://inertiajs.com)
 
 A full-stack, role-based **Library Management System** built on Laravel 10, Vue 3, Inertia.js & Tailwind CSS.
+I've deployed a demo of the app as well, please visit it and try it out [here.](https://www.lms.anirudhvijay.xyz/)
 
 ---
 
@@ -77,16 +78,51 @@ composer install
 
 # 3. Install JS dependencies
 npm install
+```
 
+---
+
+### Environment Setup
+
+```bash
 # 4. Copy .env and generate app key
 cp .env.example .env
 php artisan key:generate
+```
 
+---
+
+### Database Seeding
+
+```bash
 # 5. Create SQLite file at the root of the database folder.
 touch database.sqlite
 
 # 6. Database and seeding, Drop all tables, run migrations & seed via LMSSeeder
 php artisan migrate:fresh --seed --seeder=LMSSeeder
+```
 
-# 7. Running the app
+---
+
+### Running the app
+
+```bash
 composer dev
+```
+
+---
+
+## Testing
+I've used Pest to create a simple unit test case file, to check who can or cannot leave reviews. As per my application logic, only customers are allowed to create reviews, and only the owners of the reviews are allowed to update their own reviews.
+To perform the test:
+```bash
+php artisan test
+```
+
+---
+
+## Misc.
+- All the requirements have been fulfilled, including the optional extras. The database diagram is shown below :
+![Database Diagram](https://github.com/AnirudhVijayaraghavan/library-management-system/blob/main/docs/DatabaseDiagram.png)
+
+
