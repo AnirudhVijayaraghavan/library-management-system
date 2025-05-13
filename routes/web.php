@@ -103,11 +103,23 @@ Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
     }
-    $featuredBooks = Book::latest()->take(8)->get();
-    // Guests see the public landing page:
+
+    $featuredBooks = Book::latest()
+        ->take(4)
+        ->with(['author', 'reviews'])
+        ->get()
+        ->map(fn($book) => [
+            'id' => $book->id,
+            'title' => $book->title,
+            'author' => $book->author->name,
+            'cover_image' => $book->cover_image,
+            'average_rating' => round($book->reviews->avg('rating'), 1) ?: null,
+            'is_available' => is_null($book->currentLoan),
+        ]);
+
     return Inertia::render('Landing', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        compact('featuredBooks')
+        'featuredBooks' => $featuredBooks,
     ]);
 })->name('landing');

@@ -9,6 +9,8 @@
     @vite('resources/css/app.css')
     @inertiaHead
     {{-- @routes --}}
+    <!-- FAVICON -->
+    <link rel="icon" href="{{ asset('icons8-library-16.png') }}" type="image/x-icon" />
 </head>
 
 <body>

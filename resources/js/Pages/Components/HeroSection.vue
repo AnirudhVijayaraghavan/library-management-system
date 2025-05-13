@@ -2,7 +2,7 @@
     <section class="relative h-screen bg-cover bg-center bg-no-repeat"
         :style="{ 'background-image': 'url(/images/henry-be-lc7xcWebECc-unsplash.jpg)' }" data-aos="fade-in">
         <div
-            class="absolute inset-0 /*bg-black bg-opacity-50*/ flex flex-col justify-center items-center text-center px-4">
+            class="absolute inset-0 bg-gray bg-opacity-10 flex flex-col justify-center items-center text-center px-4">
             <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight max-w-3xl"
                 data-aos="zoom-in" data-aos-delay="200">
                 Your Gateway to Unlimited Knowledge
