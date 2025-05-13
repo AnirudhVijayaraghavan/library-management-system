@@ -70,7 +70,7 @@ Here's my [portfolio](https://www.anirudhvijay.xyz/), built with React.
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/AnirudhVijayaraghavan/mylibrary.git
+git clone https://github.com/AnirudhVijayaraghavan/library-management-system.git
 cd <repo name>
 
 # 2. Install PHP dependencies
