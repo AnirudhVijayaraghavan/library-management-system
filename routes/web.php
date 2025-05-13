@@ -93,6 +93,9 @@ Route::delete(
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware('auth')
     ->name('dashboard');
+Route::get('/loans', [LoanController::class, 'show'])
+    ->middleware('auth')
+    ->name('loans.index');
 
 // Login / Logout
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])

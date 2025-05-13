@@ -72,9 +72,36 @@ class LoanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show()
     {
         //
+        $user = auth()->user();
+
+        $query = Loan::with(['book', 'user'])
+            ->whereNull('returned_at')
+            ->orderBy('due_at');
+
+        if ($user->role === 'customer') {
+            $query->where('user_id', $user->id);
+        }
+
+        $loans = $query->get()->map(fn($loan) => [
+            'id' => $loan->id,
+            'book_title' => $loan->book->title,
+            'borrowed_at' => $loan->borrowed_at->toDateString(),
+            'due_at' => $loan->due_at->toDateString(),
+            'customer' => $user->role === 'librarian'
+                ? $loan->user->name
+                : null,
+        ])->toArray();
+
+        return Inertia::render('Librarian/Loans/Show', [
+            'loans' => $loans,
+            'user'  => [
+              'id'   => $user->id,
+              'role' => $user->role,
+            ],
+          ]);
     }
 
     /**

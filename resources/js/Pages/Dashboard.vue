@@ -23,10 +23,12 @@
                     <h2 class="text-lg font-medium">Total Books</h2>
                     <p class="text-3xl">{{ stats.totalBooks }}</p>
                 </div>
-                <div class="p-4 bg-white rounded-lg shadow">
-                    <h2 class="text-lg font-medium">Books Borrowed</h2>
-                    <p class="text-3xl">{{ stats.borrowedBooks }}</p>
-                </div>
+
+                <!-- Borrowed Books (clickable) -->
+                <Link href="/loans" class="block bg-white rounded-lg shadow p-4 hover:shadow-lg transition">
+                <h3 class="text-lg font-medium">Books Borrowed</h3>
+                <p class="text-3xl font-bold text-indigo-600">{{ stats.borrowedBooks }}</p>
+                </Link>
                 <div class="p-4 bg-white rounded-lg shadow">
                     <h2 class="text-lg font-medium">Your Role</h2>
                     <p class="text-3xl capitalize">{{ stats.role }}</p>
