@@ -107,6 +107,10 @@ php artisan migrate:fresh --seed --seeder=LMSSeeder
 ### Running the app
 
 ```bash
+# 7. Optimizing.
+php artisan optimize
+
+# 8. Running the app.
 composer dev
 ```
 
