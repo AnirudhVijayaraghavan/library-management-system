@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Cache;
 
 class BookController extends Controller
 {
@@ -44,76 +45,82 @@ class BookController extends Controller
     public function index(Request $request)
     {
 
-        $q = $request->get('q');
-        $cat = $request->get('category');
-        $auth = $request->get('author');
-        $avail = $request->get('availability');
-        $sort = $request->get('sort', 'title');
-        $direction = $request->get('direction', 'asc');
+        // Build a cache key based on the full URL (includes filters & pagination)
+        $cacheKey = 'books.index:' . md5($request->fullUrl());
 
-        if ($q) {
+        // Cache for 15 minutes, tagged by “books”
+        $props = Cache::remember($cacheKey, 60, function () use ($request) {
+            $q = $request->get('q');
+            $cat = $request->get('category');
+            $auth = $request->get('author');
+            $avail = $request->get('availability');
+            $sort = $request->get('sort', 'title');
+            $direction = $request->get('direction', 'asc');
 
-            $paginator = Book::search($q)
-                ->paginate(9)
-                ->withQueryString();
-
-            $paginator->getCollection()->load(['author', 'category', 'reviews', 'currentLoan']);
-        } else {
-            $query = Book::with(['author', 'category', 'reviews', 'currentLoan']);
-
-            if ($cat)
-                $query->where('category_id', $cat);
-            if ($auth)
-                $query->where('author_id', $auth);
-            if ($avail !== null && $avail !== '') {
-                $avail == 1
-                    ? $query->whereDoesntHave('currentLoan')
-                    : $query->whereHas('currentLoan');
+            if ($q) {
+                $paginator = Book::search($q)
+                    ->paginate(9)
+                    ->withQueryString();
+                $paginator->getCollection()->load(['author', 'category', 'reviews', 'currentLoan']);
+            } else {
+                $query = Book::with(['author', 'category', 'reviews', 'currentLoan']);
+                if ($cat)
+                    $query->where('category_id', $cat);
+                if ($auth)
+                    $query->where('author_id', $auth);
+                if ($avail !== null && $avail !== '') {
+                    $avail == 1
+                        ? $query->whereDoesntHave('currentLoan')
+                        : $query->whereHas('currentLoan');
+                }
+                switch ($sort) {
+                    case 'author':
+                        $query->join('authors', 'books.author_id', '=', 'authors.id')
+                            ->orderBy('authors.name', $direction)
+                            ->select('books.*');
+                        break;
+                    case 'availability':
+                        $query->leftJoin('loans', 'books.id', '=', 'loans.book_id')
+                            ->orderByRaw(
+                                $direction === 'asc'
+                                ? 'CASE WHEN loans.returned_at IS NULL THEN 1 ELSE 0 END DESC'
+                                : 'CASE WHEN loans.returned_at IS NULL THEN 0 ELSE 1 END DESC'
+                            )->select('books.*');
+                        break;
+                    default:
+                        $query->orderBy($sort, $direction);
+                }
+                $paginator = $query->paginate(9)->withQueryString();
             }
 
-            switch ($sort) {
-                case 'title':
-                    $query->orderBy('title', $direction);
-                    break;
-                case 'author':
-                    $query->join('authors', 'books.author_id', '=', 'authors.id')
-                        ->orderBy('authors.name', $direction)
-                        ->select('books.*');
-                    break;
-                case 'availability':
-                    $query->leftJoin('loans', 'books.id', '=', 'loans.book_id')
-                        ->orderByRaw(
-                            $direction === 'asc'
-                            ? 'CASE WHEN loans.returned_at IS NULL THEN 1 ELSE 0 END DESC'
-                            : 'CASE WHEN loans.returned_at IS NULL THEN 0 ELSE 1 END DESC'
-                        )
-                        ->select('books.*');
-                    break;
-            }
+            $books = $paginator->through(fn($book) => [
+                'id' => $book->id,
+                'title' => $book->title,
+                'author' => $book->author->name,
+                'category' => $book->category->name,
+                'description' => Str::limit($book->description, 100),
+                'cover_image' => $book->cover_image,
+                'average_rating' => round($book->reviews->avg('rating'), 1) ?: null,
+                'is_available' => is_null($book->currentLoan),
+            ]);
 
-            $paginator = $query->paginate(9)->withQueryString();
-        }
+            $categories = Category::orderBy('name')
+                ->get(['id', 'name'])
+                ->map->only(['id', 'name']);
 
-        $books = $paginator->through(fn($book) => [
-            'id' => $book->id,
-            'title' => $book->title,
-            'author' => $book->author->name,
-            'category' => $book->category->name,
-            'description' => Str::limit($book->description, 100),
-            'cover_image' => $book->cover_image,
-            'average_rating' => round($book->reviews->avg('rating'), 1) ?: null,
-            'is_available' => is_null($book->currentLoan),
-        ]);
+            $authors = Author::orderBy('name')
+                ->get(['id', 'name'])
+                ->map->only(['id', 'name']);
 
-        $categories = Category::orderBy('name')->get()->map->only(['id', 'name']);
-        $authors = Author::orderBy('name')->get()->map->only(['id', 'name']);
+            return [
+                'books' => $books,
+                'categories' => $categories,
+                'authors' => $authors,
+                'filters' => $request->only('q', 'category', 'author', 'availability', 'sort', 'direction'),
+            ];
+        });
 
-        return Inertia::render('Books/Index', [
-            'books' => $books,
-            'categories' => $categories,
-            'authors' => $authors,
-            'filters' => $request->only('q', 'category', 'author', 'availability', 'sort', 'direction'),
-        ]);
+        return Inertia::render('Books/Index', $props);
     }
 
     /**
@@ -158,6 +165,7 @@ class BookController extends Controller
         ]);
 
         Book::create($data);
+        Cache::flush();
 
         return redirect()->route('librarian.page')
             ->with('success', 'Book created.');
@@ -169,37 +177,35 @@ class BookController extends Controller
     public function show(Book $id)
     {
         //
-        $id->load(['author', 'category', 'reviews.user']);
+        $cacheKey = "books.show:{$id->id}";
 
-        $data = [
-            'id' => $id->id,
-            'title' => $id->title,
-            'author' => $id->author->name,
-            'description' => $id->description,
-            'cover_image' => $id->cover_image,
-            'publisher' => $id->publisher,
-            'publication_date' => $id->publication_date,
-            'category' => $id->category->name,
-            'isbn' => $id->isbn,
-            'page_count' => $id->page_count,
-            'average_rating' => round($id->reviews->avg('rating'), 1) ?: null,
-            'is_available' => is_null($id->currentLoan),
-            'due_at' => optional($id->currentLoan)->due_at?->toDateString(),
-            'reviews' => $id->reviews->map(fn($r) => [
-                'id' => $r->id,
-                'user' => [
-                    'id' => $r->user->id,
-                    'name' => $r->user->name,
-                ],
-                'rating' => $r->rating,
-                'comment' => $r->comment,
-                'created_at' => $r->created_at->format('M j, Y'),
-            ])->toArray(),
-        ];
+        $data = Cache::remember($cacheKey, 60, function () use ($id) {
+            $id->load(['author', 'category', 'reviews.user', 'currentLoan']);
+            return [
+                'id' => $id->id,
+                'title' => $id->title,
+                'author' => $id->author->name,
+                'description' => $id->description,
+                'cover_image' => $id->cover_image,
+                'publisher' => $id->publisher,
+                'publication_date' => $id->publication_date,
+                'category' => $id->category->name,
+                'isbn' => $id->isbn,
+                'page_count' => $id->page_count,
+                'average_rating' => round($id->reviews->avg('rating'), 1) ?: null,
+                'is_available' => is_null($id->currentLoan),
+                'due_at' => optional($id->currentLoan)->due_at?->toDateString(),
+                'reviews' => $id->reviews->map(fn($r) => [
+                    'id' => $r->id,
+                    'user' => ['id' => $r->user->id, 'name' => $r->user->name],
+                    'rating' => $r->rating,
+                    'comment' => $r->comment,
+                    'created_at' => $r->created_at->format('M j, Y'),
+                ])->toArray(),
+            ];
+        });
 
-        return Inertia::render('Books/Show', [
-            'book' => $data,
-        ]);
+        return Inertia::render('Books/Show', ['book' => $data]);
     }
 
     /**
@@ -245,7 +251,7 @@ class BookController extends Controller
         ]);
 
         $book->update($data);
-
+        Cache::flush();
         return redirect()->route('librarian.page')
             ->with('success', 'Book updated.');
     }
@@ -260,7 +266,7 @@ class BookController extends Controller
             return redirect(route('librarian.page'))->with('failure', 'Unauthorized.');
         }
         $book->delete();
-
+        Cache::flush();
         return redirect()->route('librarian.page')
             ->with('success', 'Book removed.');
         ;
