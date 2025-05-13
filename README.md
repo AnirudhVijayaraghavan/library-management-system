@@ -3,8 +3,8 @@
 [![License](https://img.shields.io/github/license/yourusername/mylibrary)](LICENSE) [![Laravel](https://img.shields.io/badge/Laravel-10.x-red)](https://laravel.com) [![Vue](https://img.shields.io/badge/Vue–3-green)](https://vuejs.org) [![Inertia.js](https://img.shields.io/badge/Inertia.js-0.13-blue)](https://inertiajs.com)
 
 A full-stack, role-based **Library Management System** built on Laravel 10, Vue 3, Inertia.js & Tailwind CSS.
-I've deployed a demo of the app as well, please visit it and try it out [here.](https://www.lms.anirudhvijay.xyz/)
-
+I've taken the liberty of deploying the app as well, please visit it and try it out [here.](https://www.lms.anirudhvijay.xyz/)
+Here's my [portfolio](https://www.anirudhvijay.xyz/), built with React.
 ---
 
 ## 📖 Table of Contents
