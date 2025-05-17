@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Loan;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 
 class LoanController extends Controller
@@ -77,31 +78,61 @@ class LoanController extends Controller
         //
         $user = auth()->user();
 
+        // $query = Loan::with(['book', 'user'])
+        //     ->whereNull('returned_at')
+        //     ->orderBy('due_at');
         $query = Loan::with(['book', 'user'])
             ->whereNull('returned_at')
             ->orderBy('due_at');
-
+        // if ($user->role === 'customer') {
+        //     $query->where('user_id', $user->id);
+        // }
         if ($user->role === 'customer') {
             $query->where('user_id', $user->id);
         }
-
+        $today = now();
+        // $loans = $query->get()->map(fn($loan) => [
+        //     'id' => $loan->id,
+        //     'book_title' => $loan->book->title,
+        //     'borrowed_at' => $loan->borrowed_at->toDateString(),
+        //     'due_at' => $loan->due_at->toDateString(),
+        //     'customer' => $user->role === 'librarian'
+        //         ? $loan->user->name
+        //         : null,
+        // ])->toArray();
         $loans = $query->get()->map(fn($loan) => [
             'id' => $loan->id,
             'book_title' => $loan->book->title,
             'borrowed_at' => $loan->borrowed_at->toDateString(),
             'due_at' => $loan->due_at->toDateString(),
-            'customer' => $user->role === 'librarian'
-                ? $loan->user->name
-                : null,
+
+            // borrower info
+            'customer' => [
+                'id' => $loan->user->id,
+                'name' => $loan->user->name,
+                'email' => $loan->user->email,
+            ],
+
+            // days until due or days late
+            'days_until_due' => $today->lte($loan->due_at)
+                ? $today->diffInDays($loan->due_at)
+                : 0,
+            'days_late' => $today->gt($loan->due_at)
+                ? $today->diffInDays($loan->due_at)
+                : 0,
         ])->toArray();
 
+        // return Inertia::render('Librarian/Loans/Show', [
+        //     'loans' => $loans,
+        //     'user' => [
+        //         'id' => $user->id,
+        //         'role' => $user->role,
+        //     ],
+        // ]);
         return Inertia::render('Librarian/Loans/Show', [
             'loans' => $loans,
-            'user'  => [
-              'id'   => $user->id,
-              'role' => $user->role,
-            ],
-          ]);
+            'user' => ['id' => $user->id, 'role' => $user->role],
+        ]);
     }
 
     /**
